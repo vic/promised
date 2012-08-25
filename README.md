@@ -8,6 +8,26 @@ Currently it supports jQuery and Q promises.
 [jQuery]: [http://api.jquery.com/category/deferred-object]
 [Q]: [http://documentup.com/kriskowal/q/]
 
+## Usage ##
+
+```javascript
+var P = require('promised') // or window.promised in browsers
+
+var promisedQ = P.Q( Q )      // Use Promised with Q deferreds
+var promisedJ = P.$( jQuery ) // Use Promised with JQuery deferreds
+
+// Or you can give P two functions:
+//
+// deferrer: takes a single argument and creates a deferred object
+//           with it or returns it if already a referred.
+//
+// promiser: takes a deferred object and returns a promise for it
+//
+
+var promisedCustom = P( defferer, promiser )
+
+```
+
 ## API ##
 
 In the following signatures `callback<e,s>` means a function that
