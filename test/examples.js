@@ -1,0 +1,1 @@
+require('../examples/q-async')

@@ -1,0 +1,29 @@
+{
+  "author": "Victor Hugo Borja <vic.borja@gmail.com> (http://twitter.com/vborja)",
+  "name": "promised",
+  "description": "Convert back and forth from javascript Promises to Callbacks",
+  "version": "0.0.0",
+  "homepage": "http://vic.github.com/promised",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/vic/promised.git"
+  },
+  "main": "promised.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "mocha": "*",
+    "chai": "*",
+    "mecha": "*"
+  },
+  "optionalDependencies": {
+    "jquery": "*",
+    "q": "*",
+    "async": "*"
+  },
+  "engines": {
+    "node": "*"
+  }
+}
