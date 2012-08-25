@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <title>Promised by vic</title>
+  </head>
+
+  <body>
+    <div id="container">
+      <div class="inner">
+
+        <header>
+          <h1>Promised</h1>
+          <h2>Convert back and forth from javascript Promises to Callbacks</h2>
+        </header>
+
+        <section id="downloads" class="clearfix">
+          <a href="https://github.com/vic/promised/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/vic/promised/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/vic/promised" id="view-on-github" class="button"><span>View on GitHub</span></a>
+        </section>
+
+        <hr>
+
+        <section id="main_content">
+          <h1>Promised #.</h1>
+
+<p>Convert back and forth from javascript Promises to Callbacks</p>
+
+<p>This library works on both node and browser.
+Currently it supports jQuery and Q promises.</p>
+
+<h2>Usage</h2>
+
+<div class="highlight"><pre><span class="kd">var</span> <span class="nx">P</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'promised'</span><span class="p">)</span> <span class="c1">// or window.promised in browsers</span>
+
+<span class="kd">var</span> <span class="nx">promisedQ</span> <span class="o">=</span> <span class="nx">P</span><span class="p">.</span><span class="nx">Q</span><span class="p">(</span> <span class="nx">Q</span> <span class="p">)</span>      <span class="c1">// Use Promised with Q deferreds</span>
+<span class="kd">var</span> <span class="nx">promisedJ</span> <span class="o">=</span> <span class="nx">P</span><span class="p">.</span><span class="nx">$</span><span class="p">(</span> <span class="nx">jQuery</span> <span class="p">)</span> <span class="c1">// Use Promised with JQuery deferreds</span>
+
+<span class="c1">// Or you can give P two functions:</span>
+<span class="c1">//</span>
+<span class="c1">// deferrer: takes a single argument and creates a deferred object</span>
+<span class="c1">//           with it or returns it if already a referred.</span>
+<span class="c1">//</span>
+<span class="c1">// promiser: takes a deferred object and returns a promise for it</span>
+<span class="c1">//</span>
+
+<span class="kd">var</span> <span class="nx">promisedCustom</span> <span class="o">=</span> <span class="nx">P</span><span class="p">(</span> <span class="nx">defferer</span><span class="p">,</span> <span class="nx">promiser</span> <span class="p">)</span>
+
+</pre></div>
+
+<h2>API</h2>
+
+<p>In the following signatures <code>callback&lt;e,s&gt;</code> means a function that
+takes two arguments, one for error and the second for success. And
+<code>callback&lt;v&gt;</code> is a function that takes a single value; in node
+API these kind of callbacks are used for predicates, functions that
+either invoke the callback with true or false, that's why each of
+the following functions has a <code>p.</code> version which works with this
+kind of predicate callbacks.</p>
+
+<h3>Deferred generator to Callback receiver</h3>
+
+<p><code>P(function, receiver, args...)</code> -&gt; <code>function(args..., callback&lt;e,s&gt;)</code></p>
+
+<p><code>P.p(function, receiver, args...)</code> -&gt; <code>function(args..., callback&lt;v&gt;)</code></p>
+
+<p>This transformation takes a function that will return a <em>deferred</em> and
+will transform it into a function that expects any number of arguments
+and a <em>callback</em> as the last one.</p>
+
+<pre><code>P(jQuery.ajax, jQuery)
+
+// is equivalent to
+function(args..., callback) {
+  var deferred = jQuery.ajax(args...)
+    , promise = deferred.promise()
+  promise.then(callbackSuccess, callbackError)
+}
+</code></pre>
+
+<p>Functions returned by <code>P</code> can be curried by using it's <code>curry</code> method.
+This way you can add arguments to the function without yet invoking it.</p>
+
+<p><code>_.curry(args...)</code> -&gt; <code>function(args..., callback&lt;e,s&gt;)</code></p>
+
+<h3>Forward a Promise to Callback arguments</h3>
+
+<p><code>P.fwd(promise, callback&lt;e, s&gt;)</code></p>
+
+<p><code>P.p.fwd(promise, callback&lt;v&gt;)</code></p>
+
+<p>When the given <em>promise</em> is resolved/rejected, the <em>callback</em> is called
+accordingly.</p>
+
+<h3>Turn a Deferred into a Callback</h3>
+
+<p><code>P.bwd(deferred)</code> -&gt; <code>function(error, success)</code></p>
+
+<p><code>P.p.bwd(deferred)</code> -&gt; <code>function(value)</code></p>
+
+<p>When the returned <em>callback</em> is given an error argument, the
+<em>deferred</em> will be rejected, otherwise it will be resolved.</p>
+
+<h3>Turn a Promise into a Function that takes a callback and resolves</h3>
+
+<p><code>P.get(promise)</code> -&gt; <code>function(callback&lt;e,s&gt;){ resolve(s)/reject(e) }</code>
+<code>P.p.get(promise)</code> -&gt; <code>function(callback&lt;v&gt;){ promise.resolve(v) }</code></p>
+
+<p>If given multiple _promise_s, <code>.get</code> will return an array of functions.</p>
+
+<h3>Turn a Deferred into a Function (callback) that resolves/rejects</h3>
+
+<p><code>P.set(deferred)</code> -&gt; <code>function(error, success) { resolve(success)/reject(error) }</code>
+<code>P.p.set(deferred)</code> -&gt; <code>function(value) { resolve(value) }</code></p>
+
+<p>If <code>p.set</code> is given multiple <em>deferred_s each of them will be resolved
+to the corresponding argument the _callback</em> is called with.
+If <code>.set</code> is given multiple _deferred_s all of them will be
+resolved/rejected to the same value.</p>
+        </section>
+
+        <footer>
+          Promised is maintained by <a href="https://github.com/vic">vic</a><br>
+          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.
+        </footer>
+
+        
+      </div>
+    </div>
+  </body>
+</html>
